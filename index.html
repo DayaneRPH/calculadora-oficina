@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caixa do dia · Afiação</title>
+<style>
+:root{
+  --bg:#eef1f4;--card:#fff;--ink:#17212b;--muted:#5d6b79;--line:#d3dae1;
+  --accent:#0e6b73;--accent-ink:#fff;--field:#f6f8fa;
+  --total-bg:#17212b;--total-ink:#fff;--total-num:#ffc84a;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10161c;--card:#1a232c;--ink:#eef2f6;--muted:#9aa8b5;--line:#2c3945;
+    --accent:#4cc3cc;--accent-ink:#06282b;--field:#121a21;
+    --total-bg:#0a0f14;--total-ink:#eef2f6;--total-num:#ffc84a;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10161c;--card:#1a232c;--ink:#eef2f6;--muted:#9aa8b5;--line:#2c3945;
+  --accent:#4cc3cc;--accent-ink:#06282b;--field:#121a21;
+  --total-bg:#0a0f14;--total-ink:#eef2f6;--total-num:#ffc84a;color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+  font-family:"Barlow","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:18px;line-height:1.3;
+  -webkit-text-size-adjust:100%}
+main{max-width:560px;margin:0 auto;padding:20px 16px 150px}
+h1{font-size:28px;line-height:1.1;margin:4px 0 4px;font-weight:700}
+.sub{margin:0 0 18px;color:var(--muted);font-size:17px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.item h2{margin:0 0 12px;font-size:21px;font-weight:600}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:15px;color:var(--muted);margin-bottom:6px}
+.qty{display:flex;align-items:stretch;gap:6px}
+.qty button{flex:0 0 52px;height:56px;border:1px solid var(--line);background:var(--field);color:var(--ink);
+  border-radius:12px;font-size:28px;font-weight:600;cursor:pointer;touch-action:manipulation}
+.qty button:active{background:var(--accent);color:var(--accent-ink)}
+input{width:100%;min-width:0;height:56px;border:1px solid var(--line);background:var(--field);color:var(--ink);
+  border-radius:12px;font:inherit;font-size:22px;font-weight:600;text-align:center;padding:0 8px}
+.price{position:relative}
+.price span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:18px;pointer-events:none}
+.price input{text-align:right;padding-left:44px;padding-right:12px}
+input:focus,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.sub-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);color:var(--muted);font-size:17px}
+.sub-total strong{color:var(--ink);font-size:22px}
+.clear{width:100%;height:56px;border-radius:12px;border:2px solid var(--accent);background:transparent;color:var(--accent);
+  font:inherit;font-size:19px;font-weight:700;cursor:pointer;margin-top:6px;touch-action:manipulation}
+.clear:active{background:var(--accent);color:var(--accent-ink)}
+.total{position:fixed;left:0;right:0;bottom:0;background:var(--total-bg);color:var(--total-ink);
+  padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 18px rgba(0,0,0,.25)}
+.total div{max-width:560px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.total small{font-size:17px;opacity:.85}
+.total b{font-size:36px;line-height:1;color:var(--total-num);font-weight:700;white-space:nowrap}
+</style>
+</head>
+<body>
+<main>
+  <h1>Caixa do dia</h1>
+  <p class="sub">Informe quantos serviços foram feitos. Toque no preço para alterá-lo.</p>
+  <div id="lista"></div>
+  <button class="clear" id="limpar" type="button">Limpar e começar novo dia</button>
+</main>
+<div class="total"><div><small>Total do dia</small><b id="total">R$ 0,00</b></div></div>
+
+<script>
+var itens=[
+  {nome:"Alicate de unha",preco:5},
+  {nome:"Tesoura de unha",preco:4},
+  {nome:"Tesoura de cabelo",preco:5},
+  {nome:"Faca",preco:6},
+  {nome:"Serra e serrote",preco:10}
+];
+var brl=new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"});
+var lista=document.getElementById("lista");
+
+function num(v){
+  v=String(v).replace(/[^\d,.]/g,"").replace(",",".");
+  var n=parseFloat(v);
+  return isNaN(n)?0:n;
+}
+function qtd(v){var n=parseInt(String(v).replace(/\D/g,""),10);return isNaN(n)?0:n;}
+function fmtPreco(n){return n.toFixed(2).replace(".",",");}
+
+itens.forEach(function(it,i){
+  var d=document.createElement("section");
+  d.className="item";
+  d.innerHTML=
+    '<h2>'+it.nome+'</h2>'+
+    '<div class="row">'+
+      '<div><label for="q'+i+'">Quantidade</label>'+
+        '<div class="qty"><button type="button" data-i="'+i+'" data-d="-1" aria-label="Diminuir">−</button>'+
+        '<input id="q'+i+'" inputmode="numeric" pattern="[0-9]*" placeholder="0" autocomplete="off">'+
+        '<button type="button" data-i="'+i+'" data-d="1" aria-label="Aumentar">+</button></div></div>'+
+      '<div><label for="p'+i+'">Preço unitário</label>'+
+        '<div class="price"><span>R$</span><input id="p'+i+'" inputmode="decimal" autocomplete="off" value="'+fmtPreco(it.preco)+'"></div></div>'+
+    '</div>'+
+    '<div class="sub-total"><span>Subtotal</span><strong id="s'+i+'">R$ 0,00</strong></div>';
+  lista.appendChild(d);
+});
+
+function calcular(){
+  var total=0;
+  itens.forEach(function(it,i){
+    var s=qtd(document.getElementById("q"+i).value)*num(document.getElementById("p"+i).value);
+    total+=s;
+    document.getElementById("s"+i).textContent=brl.format(s);
+  });
+  document.getElementById("total").textContent=brl.format(total);
+}
+
+lista.addEventListener("input",calcular);
+lista.addEventListener("focusin",function(e){if(e.target.tagName==="INPUT")e.target.select();});
+lista.addEventListener("focusout",function(e){
+  var el=e.target;
+  if(el.id&&el.id.charAt(0)==="p"){el.value=fmtPreco(num(el.value));calcular();}
+});
+lista.addEventListener("click",function(e){
+  var b=e.target.closest("button[data-i]");
+  if(!b)return;
+  var el=document.getElementById("q"+b.dataset.i);
+  el.value=Math.max(0,qtd(el.value)+parseInt(b.dataset.d,10))||"";
+  calcular();
+});
+document.getElementById("limpar").addEventListener("click",function(){
+  itens.forEach(function(it,i){
+    document.getElementById("q"+i).value="";
+    document.getElementById("p"+i).value=fmtPreco(it.preco);
+  });
+  calcular();
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+calcular();
+</script>
+</body>
+</html>
