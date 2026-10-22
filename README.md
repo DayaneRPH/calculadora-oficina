@@ -1,6 +1,8 @@
 🔢 **Calculadora de entrada de caixa**
 
 
+<img width="648" height="1152" alt="gif calculadora" src="https://github.com/user-attachments/assets/9f395049-ce19-4c82-bf10-ee8098275b5a" />
+
 
 **Overview**
 
