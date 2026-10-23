@@ -23,9 +23,8 @@ Na realidade atual do negócio, os serviços realizados e os pagamentos são con
 
 **A solução**
 
-A solução é uma calculadora personalizada para a Oficina do Galego, criada com a inteligência artificial *Claude*. A ferramenta permite inserir, pelo celular, a quantidade diária de serviços realizados e obter automaticamente o faturamento calculado por categoria e o total do dia, com preços previamente preenchidos e editáveis.
+A solução é uma calculadora personalizada para a Oficina do Galego, criada com a inteligência artificial *Claude*. A ferramenta permite inserir, pelo celular, a quantidade diária de serviços realizados e obter automaticamente o faturamento  por categoria e o total do dia. Os valores já estão previamente preenchidos, mas são editáveis.
 
-A ferramenta permite inserir, pelo celular, a quantidade diária de serviços realizados e obter automaticamente o faturamento por categoria e o total do dia, com preços previamente preenchidos (mas editáveis).
 
 A calculadora será usada ao fim do expediente, no qual o fluxo de atendimento é mínimo. Durante o dia, as anotações serão manuais, em prancheta ou caderno. Dessa forma, não prejudica a rotina de trabalho do estabelecimento.
 
